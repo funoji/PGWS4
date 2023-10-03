@@ -10,7 +10,7 @@
 
 # 結果
 
-![第2回の結果]([???](https://github.com/tpu-game-2023/PGWS4/assets/90616260/47675757-a67a-4b57-ab48-7f669ca7b3aa).png)
+![第2回の結果](https://github.com/tpu-game-2023/PGWS4/assets/90616260/186b46d2-a11f-4952-af67-739f33d4ff41)
 
 ![第3回の結果](???.png)
 
