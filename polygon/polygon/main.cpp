@@ -6,6 +6,7 @@
 #include<vector>
 #include<d3dcompiler.h>
 #include <string>
+#include<DirectXTex.h>
 #ifdef _DEBUG
 #include<iostream>
 #endif
@@ -14,6 +15,7 @@
 #pragma comment(lib,"d3d12.lib")
 #pragma comment(lib,"dxgi.lib")
 #pragma comment(lib,"d3dcompiler.lib")
+#pragma comment(lib,"DirectXTex.lib")
 
 using namespace std;
 using namespace DirectX;
@@ -156,21 +158,15 @@ int WINAPI WINMAIN(HINSTANCE, HINSTANCE, LPSTR, int)
 	result = _dev->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT,
 		IID_PPV_ARGS(&_cmdAllocator));
 
-	result = _dev->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT,
-		_cmdAllocator, nullptr,
-		IID_PPV_ARGS(&_cmdList));
+	result = _dev->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, 
+		_cmdAllocator, nullptr, IID_PPV_ARGS(&_cmdList));
 
 	D3D12_COMMAND_QUEUE_DESC cmdQueueDesc = {};
-	//タイムアウトなし
-	cmdQueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
-	//アダプター１つのみときは０
+	cmdQueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;//タイムアウトなし
 	cmdQueueDesc.NodeMask = 0;
-	//プライオリティはなし
-	cmdQueueDesc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
-	//コマンドリストと合わせる	
-	cmdQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
-
-	result = _dev->CreateCommandQueue(&cmdQueueDesc, IID_PPV_ARGS(&_cmdQueue));
+	cmdQueueDesc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;//プライオリティ特に指定なし
+	cmdQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;//ここはコマンドリストと合わせてください
+	result = _dev->CreateCommandQueue(&cmdQueueDesc, IID_PPV_ARGS(&_cmdQueue));//コマンドキュー生成
 
 	DXGI_SWAP_CHAIN_DESC1 swapchainDesc = {};
 	swapchainDesc.Width = window_width;
@@ -179,15 +175,18 @@ int WINAPI WINMAIN(HINSTANCE, HINSTANCE, LPSTR, int)
 	swapchainDesc.Stereo = false;
 	swapchainDesc.SampleDesc.Count = 1;
 	swapchainDesc.SampleDesc.Quality = 0;
-	swapchainDesc.BufferCount = DXGI_USAGE_BACK_BUFFER;
+	swapchainDesc.BufferUsage = DXGI_USAGE_BACK_BUFFER;
 	swapchainDesc.BufferCount = 2;
 	swapchainDesc.Scaling = DXGI_SCALING_STRETCH;
 	swapchainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	swapchainDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
 	swapchainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
-	result = _dxgiFactory->CreateSwapChainForHwnd(_cmdQueue, hwnd, &swapchainDesc,
-		nullptr, nullptr,
+	result = _dxgiFactory->CreateSwapChainForHwnd(_cmdQueue,
+		hwnd,
+		&swapchainDesc,
+		nullptr,
+		nullptr,
 		(IDXGISwapChain1**)&_swapChain);
 
 	D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
@@ -202,6 +201,10 @@ int WINAPI WINMAIN(HINSTANCE, HINSTANCE, LPSTR, int)
 	DXGI_SWAP_CHAIN_DESC swcDesc = {};
 	result = _swapChain->GetDesc(&swcDesc);
 
+	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
+	rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+
 	std::vector<ID3D12Resource*> _backBuffers(swcDesc.BufferCount);
 	for (int idx = 0; idx < swcDesc.BufferCount; idx++)
 	{
@@ -210,7 +213,7 @@ int WINAPI WINMAIN(HINSTANCE, HINSTANCE, LPSTR, int)
 			= rtvHeaps->GetCPUDescriptorHandleForHeapStart();
 		handle.ptr += idx * _dev->GetDescriptorHandleIncrementSize(
 			D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-		_dev->CreateRenderTargetView(_backBuffers[idx], nullptr, handle);
+		_dev->CreateRenderTargetView(_backBuffers[idx], &rtvDesc, handle);
 	}
 
 	ID3D12Fence* _fence = nullptr;
@@ -401,7 +404,7 @@ int WINAPI WINMAIN(HINSTANCE, HINSTANCE, LPSTR, int)
 	gpipeline.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;//三角形で構成
 
 	gpipeline.NumRenderTargets = 1;//今は１つのみ
-	gpipeline.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;//0～1に正規化されたRGBA
+	gpipeline.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;//0～1に正規化されたRGBA
 
 	gpipeline.SampleDesc.Count = 1;//サンプリングは1ピクセルにつき１
 	gpipeline.SampleDesc.Quality = 0;//クオリティは最低
@@ -421,9 +424,9 @@ int WINAPI WINMAIN(HINSTANCE, HINSTANCE, LPSTR, int)
 	rootSignatureDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 
 	D3D12_DESCRIPTOR_RANGE descTblRange = {};
-	descTblRange.NumDescriptors = 1;//テクスチャひとつ
-	descTblRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;//種別はテクスチャ
-	descTblRange.BaseShaderRegister = 0;//0番スロットから
+	descTblRange.NumDescriptors = 1;  // テクスチャひとつ
+	descTblRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;  // 種別はテクスチャ
+	descTblRange.BaseShaderRegister = 0;  // 0番スロットから
 	descTblRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 	D3D12_ROOT_PARAMETER rootparam = {};
@@ -449,7 +452,7 @@ int WINAPI WINMAIN(HINSTANCE, HINSTANCE, LPSTR, int)
 
 
 	rootSignatureDesc.pStaticSamplers = &samplerDesc;
-	rootSignatureDesc.NumParameters = 1;
+	rootSignatureDesc.NumStaticSamplers = 1;
 
 	ID3DBlob* rootSigBlob = nullptr;
 	result = D3D12SerializeRootSignature(&rootSignatureDesc, 
@@ -484,49 +487,82 @@ int WINAPI WINMAIN(HINSTANCE, HINSTANCE, LPSTR, int)
 		unsigned char R, G, B, A;
 	};
 
-	std::vector<TexRGBA>textuerdata(256 * 256);
-	for (auto& rgba : textuerdata)
-	{
-		rgba.R = rand() % 256;
-		rgba.G = rand() % 256;
-		rgba.B = rand() % 256;
-		rgba.A = 255;
-	}
+	TexMetadata metadata = {};
+	ScratchImage scrathimage = {};
+
+	result = LoadFromWICFile(
+		L"img/textest.png", WIC_FLAGS_NONE,
+		&metadata, scrathimage
+	);
+
+	auto img = scrathimage.GetImage(0, 0, 0);
+
+	D3D12_RESOURCE_DESC resDesc = {};
+	resDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+	resDesc.Width = img->slicePitch;
+	resDesc.Height = 1;
+	resDesc.DepthOrArraySize = 1;
+	resDesc.MipLevels = 1;
+	resDesc.Format = DXGI_FORMAT_UNKNOWN;
+
+	resDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+	resDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+
+	resDesc.SampleDesc.Quality = 0;
+	resDesc.SampleDesc.Count = 1;
+
+	D3D12_HEAP_PROPERTIES uploadHeapProp = {};
+
+	uploadHeapProp.Type = D3D12_HEAP_TYPE_UPLOAD;
+	uploadHeapProp.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+	uploadHeapProp.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+	uploadHeapProp.CreationNodeMask = 0;
+	uploadHeapProp.VisibleNodeMask = 0;
+
+	ID3D12Resource* uploadbuff = nullptr;
+
+	result = _dev->CreateCommittedResource(
+		&uploadHeapProp,
+		D3D12_HEAP_FLAG_NONE,
+		&resDesc,
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(&uploadbuff)
+	);
 
 	D3D12_HEAP_PROPERTIES texHeapProp = {};
-	texHeapProp.Type = D3D12_HEAP_TYPE_CUSTOM;
-	texHeapProp.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_WRITE_BACK;
-	texHeapProp.MemoryPoolPreference = D3D12_MEMORY_POOL_L0;
+	texHeapProp.Type = D3D12_HEAP_TYPE_DEFAULT;
+	texHeapProp.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+	texHeapProp.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
 	texHeapProp.CreationNodeMask = 0;
 	texHeapProp.VisibleNodeMask = 0;
 
-	D3D12_RESOURCE_DESC resDesc = {};
-	resDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-	resDesc.Width = 256;
-	resDesc.Height = 256;
-	resDesc.DepthOrArraySize = 1;
-	resDesc.MipLevels = 1;
-	resDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	resDesc.SampleDesc.Count = 1;
-	resDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+	resDesc.Format = metadata.format;
+	resDesc.Width = static_cast<UINT>(metadata.width);
+	resDesc.Height = static_cast<UINT>(metadata.height);
+	resDesc.DepthOrArraySize = static_cast<uint16_t>(metadata.arraySize);
+	resDesc.MipLevels = static_cast<uint16_t>(metadata.mipLevels);
+	resDesc.Dimension = static_cast<D3D12_RESOURCE_DIMENSION>(metadata.dimension);
 	resDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+
 
 	ID3D12Resource* texbuff = nullptr;
 	result = _dev->CreateCommittedResource(
 		&texHeapProp,
 		D3D12_HEAP_FLAG_NONE,
 		&resDesc,
-		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+		D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE,
 		nullptr,
 		IID_PPV_ARGS(&texbuff)
 	);
 
-	result = texbuff->WriteToSubresource(
+	/*result = texbuff->WriteToSubresource(
 		0,
 		nullptr,
-		textuerdata.data(),
-		sizeof(TexRGBA) * 256,
-		sizeof(TexRGBA) * (UINT)textuerdata.size());
+		img->pixels,
+		static_cast<UINT>(img->rowPitch),
+		static_cast<UINT>(img->slicePitch)
+		);*/
 
 
 	ID3D12DescriptorHeap* texDescHeap = nullptr;
@@ -538,7 +574,7 @@ int WINAPI WINMAIN(HINSTANCE, HINSTANCE, LPSTR, int)
 	result = _dev->CreateDescriptorHeap(&descHeapDecs, IID_PPV_ARGS(&texDescHeap));
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-	srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	srvDesc.Format = metadata.format;
 	srvDesc.Shader4ComponentMapping =
 		D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
@@ -550,8 +586,66 @@ int WINAPI WINMAIN(HINSTANCE, HINSTANCE, LPSTR, int)
 		texDescHeap->GetCPUDescriptorHandleForHeapStart()
 	);
 
+
+	uint8_t* mapforImg = nullptr;
+	result = uploadbuff->Map(0, nullptr, (void**)&mapforImg);
+
+	std::copy_n(img->pixels, img->slicePitch, mapforImg);
+	uploadbuff->Unmap(0, nullptr);
+
+	D3D12_TEXTURE_COPY_LOCATION dst = {};
+	dst.pResource = texbuff;
+	dst.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+	dst.SubresourceIndex = 0;
+
+	D3D12_TEXTURE_COPY_LOCATION src = {};
+
+	src.pResource = uploadbuff;
+	src.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
+	src.PlacedFootprint.Footprint.Width = static_cast<UINT>(metadata.width);
+	src.PlacedFootprint.Footprint.Height = static_cast<UINT>(metadata.height);
+	src.PlacedFootprint.Footprint.Depth = static_cast<UINT>(metadata.depth);
+	src.PlacedFootprint.Footprint.RowPitch = img->rowPitch
+		+ D3D12_TEXTURE_DATA_PITCH_ALIGNMENT
+		- img->rowPitch % D3D12_TEXTURE_DATA_PITCH_ALIGNMENT;
+	src.PlacedFootprint.Footprint.Format = img->format;
+
+	_cmdList->CopyTextureRegion(&dst, 0, 0, 0, &src, nullptr);
+
+	D3D12_RESOURCE_BARRIER BarrierDesc = {};
+	BarrierDesc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	BarrierDesc.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	BarrierDesc.Transition.pResource = texbuff;
+
+	BarrierDesc.Transition.Subresource = 
+		D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+
+	BarrierDesc.Transition.StateBefore =
+		D3D12_RESOURCE_STATE_COPY_DEST;
+
+	BarrierDesc.Transition.StateAfter =
+		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+
+	_cmdList->ResourceBarrier(1, &BarrierDesc);
+	_cmdList->Close();
+
+	ID3D12CommandList* cmdlists[] = { _cmdList };
+	_cmdQueue->ExecuteCommandLists(1, cmdlists);
+
+	_cmdQueue->Signal(_fence, ++_fenceVal);
+
+	if (_fence->GetCompletedValue() != _fenceVal) {
+		auto event = CreateEvent(nullptr, false, false, nullptr);
+		_fence->SetEventOnCompletion(_fenceVal, event);
+		WaitForSingleObject(event, INFINITE);
+		CloseHandle(event);
+	}
+	_cmdAllocator->Reset();//キューをクリア
+	_cmdList->Reset(_cmdAllocator, nullptr);//再びコマンドリストをためる準備
+
 	MSG msg = {};
 	unsigned int frame = 0;
+
 
 	while (true)
 	{
@@ -563,20 +657,8 @@ int WINAPI WINMAIN(HINSTANCE, HINSTANCE, LPSTR, int)
 		if (msg.message == WM_QUIT) {
 			break;
 		}
-
-
 		//DirectX処理
 		auto bbIdx = _swapChain->GetCurrentBackBufferIndex();
-
-		D3D12_RESOURCE_BARRIER BarrierDesc = {};
-		BarrierDesc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-		BarrierDesc.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-		BarrierDesc.Transition.pResource = _backBuffers[bbIdx];
-		BarrierDesc.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-		BarrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
-		BarrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
-
-		_cmdList->ResourceBarrier(1, &BarrierDesc);
 
 		_cmdList->SetPipelineState(_pipelinestate);
 
@@ -615,8 +697,6 @@ int WINAPI WINMAIN(HINSTANCE, HINSTANCE, LPSTR, int)
 
 		//命令のクローズ
 		_cmdList->Close();
-
-
 
 		//コマンドリストの実行
 		ID3D12CommandList* cmdlists[] = { _cmdList };
