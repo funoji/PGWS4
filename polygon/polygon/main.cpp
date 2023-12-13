@@ -147,7 +147,7 @@ int WINAPI WINMAIN(HINSTANCE, HINSTANCE, LPSTR, int)
 	D3D_FEATURE_LEVEL featurelevel;
 	for (auto lv : Levels)
 	{
-		//‚±‚±‚ÉƒuƒŒƒCƒNŠ|‚¯‚é‚ÆA•Û‘¶‚µ‚½GPU‚Ì–¼Ì‚ª‚í‚©‚éB
+		//ã“ã“ã«ãƒ–ãƒ¬ã‚¤ã‚¯æ›ã‘ã‚‹ã¨ã€ä¿å­˜ã—ãŸGPUã®åç§°ãŒã‚ã‹ã‚‹ã€‚
 		if (D3D12CreateDevice(tempAdapter, lv, IID_PPV_ARGS(&_dev)) == S_OK)
 		{
 			featurelevel = lv;
@@ -162,11 +162,11 @@ int WINAPI WINMAIN(HINSTANCE, HINSTANCE, LPSTR, int)
 		_cmdAllocator, nullptr, IID_PPV_ARGS(&_cmdList));
 
 	D3D12_COMMAND_QUEUE_DESC cmdQueueDesc = {};
-	cmdQueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;//ƒ^ƒCƒ€ƒAƒEƒg‚È‚µ
+	cmdQueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;//ã‚¿ã‚¤ãƒ ã‚¢ã‚¦ãƒˆãªã—
 	cmdQueueDesc.NodeMask = 0;
-	cmdQueueDesc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;//ƒvƒ‰ƒCƒIƒŠƒeƒB“Á‚Éw’è‚È‚µ
-	cmdQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;//‚±‚±‚ÍƒRƒ}ƒ“ƒhƒŠƒXƒg‚Æ‡‚í‚¹‚Ä‚­‚¾‚³‚¢
-	result = _dev->CreateCommandQueue(&cmdQueueDesc, IID_PPV_ARGS(&_cmdQueue));//ƒRƒ}ƒ“ƒhƒLƒ…[¶¬
+	cmdQueueDesc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;//ãƒ—ãƒ©ã‚¤ã‚ªãƒªãƒ†ã‚£ç‰¹ã«æŒ‡å®šãªã—
+	cmdQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;//ã“ã“ã¯ã‚³ãƒãƒ³ãƒ‰ãƒªã‚¹ãƒˆã¨åˆã‚ã›ã¦ãã ã•ã„
+	result = _dev->CreateCommandQueue(&cmdQueueDesc, IID_PPV_ARGS(&_cmdQueue));//ã‚³ãƒãƒ³ãƒ‰ã‚­ãƒ¥ãƒ¼ç”Ÿæˆ
 
 	DXGI_SWAP_CHAIN_DESC1 swapchainDesc = {};
 	swapchainDesc.Width = window_width;
@@ -313,7 +313,7 @@ int WINAPI WINMAIN(HINSTANCE, HINSTANCE, LPSTR, int)
 		0, &_vsBlob, &_ErrorBlob);
 	if (FAILED(result)) {
 		if (result == HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND)) {
-			::OutputDebugStringA("ƒtƒ@ƒCƒ‹‚ªŒ©“–‚½‚è‚Ü‚¹‚ñ");
+			::OutputDebugStringA("ãƒ•ã‚¡ã‚¤ãƒ«ãŒè¦‹å½“ãŸã‚Šã¾ã›ã‚“");
 		}
 		else {
 			std::string errstr;
@@ -331,7 +331,7 @@ int WINAPI WINMAIN(HINSTANCE, HINSTANCE, LPSTR, int)
 		0, &_psBlob, &_ErrorBlob);
 	if (FAILED(result)) {
 		if (result == HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND)) {
-			::OutputDebugStringA("ƒtƒ@ƒCƒ‹‚ªŒ©“–‚½‚è‚Ü‚¹‚ñ");
+			::OutputDebugStringA("ãƒ•ã‚¡ã‚¤ãƒ«ãŒè¦‹å½“ãŸã‚Šã¾ã›ã‚“");
 		}
 		else {
 			std::string errstr;
@@ -379,12 +379,12 @@ int WINAPI WINMAIN(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	gpipeline.BlendState.RenderTarget[0] = renderTargetBlendDesc;
 
-	gpipeline.RasterizerState.MultisampleEnable = false;//‚Ü‚¾ƒAƒ“ƒ`ƒFƒŠ‚Íg‚í‚È‚¢
-	gpipeline.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;//ƒJƒŠƒ“ƒO‚µ‚È‚¢
-	gpipeline.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;//’†g‚ğ“h‚è‚Â‚Ô‚·
-	gpipeline.RasterizerState.DepthClipEnable = true;//[“x•ûŒü‚ÌƒNƒŠƒbƒsƒ“ƒO‚Í—LŒø‚É
+	gpipeline.RasterizerState.MultisampleEnable = false;//ã¾ã ã‚¢ãƒ³ãƒã‚§ãƒªã¯ä½¿ã‚ãªã„
+	gpipeline.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;//ã‚«ãƒªãƒ³ã‚°ã—ãªã„
+	gpipeline.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;//ä¸­èº«ã‚’å¡—ã‚Šã¤ã¶ã™
+	gpipeline.RasterizerState.DepthClipEnable = true;//æ·±åº¦æ–¹å‘ã®ã‚¯ãƒªãƒƒãƒ”ãƒ³ã‚°ã¯æœ‰åŠ¹ã«
 
-	//c‚è
+	//æ®‹ã‚Š
 	gpipeline.RasterizerState.FrontCounterClockwise = false;
 	gpipeline.RasterizerState.DepthBias = D3D12_DEFAULT_DEPTH_BIAS;
 	gpipeline.RasterizerState.DepthBiasClamp = D3D12_DEFAULT_DEPTH_BIAS_CLAMP;
@@ -397,17 +397,17 @@ int WINAPI WINMAIN(HINSTANCE, HINSTANCE, LPSTR, int)
 	gpipeline.DepthStencilState.DepthEnable = false;
 	gpipeline.DepthStencilState.StencilEnable = false;
 
-	gpipeline.InputLayout.pInputElementDescs = inputLayout;//ƒŒƒCƒAƒEƒgæ“ªƒAƒhƒŒƒX
-	gpipeline.InputLayout.NumElements = _countof(inputLayout);//ƒŒƒCƒAƒEƒg”z—ñ”
+	gpipeline.InputLayout.pInputElementDescs = inputLayout;//ãƒ¬ã‚¤ã‚¢ã‚¦ãƒˆå…ˆé ­ã‚¢ãƒ‰ãƒ¬ã‚¹
+	gpipeline.InputLayout.NumElements = _countof(inputLayout);//ãƒ¬ã‚¤ã‚¢ã‚¦ãƒˆé…åˆ—æ•°
 
-	gpipeline.IBStripCutValue = D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_DISABLED;//ƒXƒgƒŠƒbƒv‚ÌƒJƒbƒg‚È‚µ
-	gpipeline.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;//OŠpŒ`‚Å\¬
+	gpipeline.IBStripCutValue = D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_DISABLED;//ã‚¹ãƒˆãƒªãƒƒãƒ—æ™‚ã®ã‚«ãƒƒãƒˆãªã—
+	gpipeline.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;//ä¸‰è§’å½¢ã§æ§‹æˆ
 
-	gpipeline.NumRenderTargets = 1;//¡‚Í‚P‚Â‚Ì‚İ
-	gpipeline.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;//0`1‚É³‹K‰»‚³‚ê‚½RGBA
+	gpipeline.NumRenderTargets = 1;//ä»Šã¯ï¼‘ã¤ã®ã¿
+	gpipeline.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;//0ï½1ã«æ­£è¦åŒ–ã•ã‚ŒãŸRGBA
 
-	gpipeline.SampleDesc.Count = 1;//ƒTƒ“ƒvƒŠƒ“ƒO‚Í1ƒsƒNƒZƒ‹‚É‚Â‚«‚P
-	gpipeline.SampleDesc.Quality = 0;//ƒNƒIƒŠƒeƒB‚ÍÅ’á
+	gpipeline.SampleDesc.Count = 1;//ã‚µãƒ³ãƒ—ãƒªãƒ³ã‚°ã¯1ãƒ”ã‚¯ã‚»ãƒ«ã«ã¤ãï¼‘
+	gpipeline.SampleDesc.Quality = 0;//ã‚¯ã‚ªãƒªãƒ†ã‚£ã¯æœ€ä½
 
 
 	D3D12_RENDER_TARGET_BLEND_DESC renderTargetBlendDeck = {};
@@ -424,9 +424,9 @@ int WINAPI WINMAIN(HINSTANCE, HINSTANCE, LPSTR, int)
 	rootSignatureDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 
 	D3D12_DESCRIPTOR_RANGE descTblRange = {};
-	descTblRange.NumDescriptors = 1;  // ƒeƒNƒXƒ`ƒƒ‚Ğ‚Æ‚Â
-	descTblRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;  // í•Ê‚ÍƒeƒNƒXƒ`ƒƒ
-	descTblRange.BaseShaderRegister = 0;  // 0”ÔƒXƒƒbƒg‚©‚ç
+	descTblRange.NumDescriptors = 1;  // ãƒ†ã‚¯ã‚¹ãƒãƒ£ã²ã¨ã¤
+	descTblRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;  // ç¨®åˆ¥ã¯ãƒ†ã‚¯ã‚¹ãƒãƒ£
+	descTblRange.BaseShaderRegister = 0;  // 0ç•ªã‚¹ãƒ­ãƒƒãƒˆã‹ã‚‰
 	descTblRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 	D3D12_ROOT_PARAMETER rootparam = {};
@@ -551,7 +551,7 @@ int WINAPI WINMAIN(HINSTANCE, HINSTANCE, LPSTR, int)
 		&texHeapProp,
 		D3D12_HEAP_FLAG_NONE,
 		&resDesc,
-		D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE,
+		D3D12_RESOURCE_STATE_COPY_DEST,
 		nullptr,
 		IID_PPV_ARGS(&texbuff)
 	);
@@ -605,9 +605,9 @@ int WINAPI WINMAIN(HINSTANCE, HINSTANCE, LPSTR, int)
 	src.PlacedFootprint.Footprint.Width = static_cast<UINT>(metadata.width);
 	src.PlacedFootprint.Footprint.Height = static_cast<UINT>(metadata.height);
 	src.PlacedFootprint.Footprint.Depth = static_cast<UINT>(metadata.depth);
-	src.PlacedFootprint.Footprint.RowPitch = img->rowPitch
-		+ D3D12_TEXTURE_DATA_PITCH_ALIGNMENT
-		- img->rowPitch % D3D12_TEXTURE_DATA_PITCH_ALIGNMENT;
+	src.PlacedFootprint.Footprint.RowPitch = (img->rowPitch
+		+ D3D12_TEXTURE_DATA_PITCH_ALIGNMENT - 1)
+		& ~(D3D12_TEXTURE_DATA_PITCH_ALIGNMENT - 1);
 	src.PlacedFootprint.Footprint.Format = img->format;
 
 	_cmdList->CopyTextureRegion(&dst, 0, 0, 0, &src, nullptr);
@@ -640,8 +640,8 @@ int WINAPI WINMAIN(HINSTANCE, HINSTANCE, LPSTR, int)
 		WaitForSingleObject(event, INFINITE);
 		CloseHandle(event);
 	}
-	_cmdAllocator->Reset();//ƒLƒ…[‚ğƒNƒŠƒA
-	_cmdList->Reset(_cmdAllocator, nullptr);//Ä‚ÑƒRƒ}ƒ“ƒhƒŠƒXƒg‚ğ‚½‚ß‚é€”õ
+	_cmdAllocator->Reset();//ã‚­ãƒ¥ãƒ¼ã‚’ã‚¯ãƒªã‚¢
+	_cmdList->Reset(_cmdAllocator, nullptr);//å†ã³ã‚³ãƒãƒ³ãƒ‰ãƒªã‚¹ãƒˆã‚’ãŸã‚ã‚‹æº–å‚™
 
 	MSG msg = {};
 	unsigned int frame = 0;
@@ -653,28 +653,38 @@ int WINAPI WINMAIN(HINSTANCE, HINSTANCE, LPSTR, int)
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-		//‚à‚¤ƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚ªI‚í‚é‚Á‚Ä‚Émessage‚ªWM_QUIT‚É‚È‚é
+		//ã‚‚ã†ã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³ãŒçµ‚ã‚ã‚‹ã£ã¦æ™‚ã«messageãŒWM_QUITã«ãªã‚‹
 		if (msg.message == WM_QUIT) {
 			break;
 		}
-		//DirectXˆ—
+		//DirectXå‡¦ç†
 		auto bbIdx = _swapChain->GetCurrentBackBufferIndex();
+
+
+		D3D12_RESOURCE_BARRIER BarrierDesc = {};
+		BarrierDesc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;// é·ç§»
+		BarrierDesc.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;// ç‰¹ã«æŒ‡å®šãªã—
+		BarrierDesc.Transition.pResource = _backBuffers[bbIdx];// ãƒãƒƒã‚¯ãƒãƒƒãƒ•ã‚¡ãƒ¼ãƒªã‚½ãƒ¼ã‚¹
+		BarrierDesc.Transition.Subresource = 0;
+		BarrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;// ç›´å‰ã¯PRESENT çŠ¶æ…‹
+		BarrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;// ä»Šã‹ã‚‰RTçŠ¶æ…‹
+		_cmdList->ResourceBarrier(1, &BarrierDesc);// ãƒãƒªã‚¢æŒ‡å®šå®Ÿè¡Œ
 
 		_cmdList->SetPipelineState(_pipelinestate);
 
 
-		//ƒŒƒ“ƒ_[ƒ^[ƒQƒbƒg‚ğw’è
+		//ãƒ¬ãƒ³ãƒ€ãƒ¼ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã‚’æŒ‡å®š
 		auto rtvH = rtvHeaps->GetCPUDescriptorHandleForHeapStart();
 		rtvH.ptr += bbIdx * _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 		_cmdList->OMSetRenderTargets(1, &rtvH, false, nullptr);
 
-		//‰æ–ÊƒNƒŠƒA
+		//ç”»é¢ã‚¯ãƒªã‚¢
 
 		float r, g, b;
 		r = (float)(0xff & frame >> 16) / 255.0f;
 		g = (float)(0xff & frame >> 8) / 255.0f;
 		b = (float)(0xff & frame >> 0) / 255.0f;
-		float clearColor[] = { r,g,b,1.0f };//‰©F
+		float clearColor[] = { r,g,b,1.0f };//é»„è‰²
 		_cmdList->ClearRenderTargetView(rtvH, clearColor, 0, nullptr);
 		++frame;
 		_cmdList->RSSetViewports(1, &viweport);
@@ -695,13 +705,13 @@ int WINAPI WINMAIN(HINSTANCE, HINSTANCE, LPSTR, int)
 		BarrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
 		_cmdList->ResourceBarrier(1, &BarrierDesc);
 
-		//–½—ß‚ÌƒNƒ[ƒY
+		//å‘½ä»¤ã®ã‚¯ãƒ­ãƒ¼ã‚º
 		_cmdList->Close();
 
-		//ƒRƒ}ƒ“ƒhƒŠƒXƒg‚ÌÀs
+		//ã‚³ãƒãƒ³ãƒ‰ãƒªã‚¹ãƒˆã®å®Ÿè¡Œ
 		ID3D12CommandList* cmdlists[] = { _cmdList };
 		_cmdQueue->ExecuteCommandLists(1, cmdlists);
-		////‘Ò‚¿
+		////å¾…ã¡
 		_cmdQueue->Signal(_fence, ++_fenceVal);
 
 		if (_fence->GetCompletedValue() != _fenceVal) {
@@ -710,8 +720,8 @@ int WINAPI WINMAIN(HINSTANCE, HINSTANCE, LPSTR, int)
 			WaitForSingleObject(event, INFINITE);
 			CloseHandle(event);
 		}
-		_cmdAllocator->Reset();//ƒLƒ…[‚ğƒNƒŠƒA
-		_cmdList->Reset(_cmdAllocator,nullptr);//Ä‚ÑƒRƒ}ƒ“ƒhƒŠƒXƒg‚ğ‚½‚ß‚é€”õ
+		_cmdAllocator->Reset();//ã‚­ãƒ¥ãƒ¼ã‚’ã‚¯ãƒªã‚¢
+		_cmdList->Reset(_cmdAllocator,nullptr);//å†ã³ã‚³ãƒãƒ³ãƒ‰ãƒªã‚¹ãƒˆã‚’ãŸã‚ã‚‹æº–å‚™
 
 		_swapChain->Present(1, 0);
 
